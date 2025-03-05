@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pushpagya: CNN Learning Game</title>
+    <style>
+                * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 400px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .flower-image {
+            width: 300px;
+            height: 300px;
+            background-color: #e0e0e0;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .flower-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .ai-hint {
+            background-color: #FFC107;
+            color: black;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .ai-hint:hover {
+            background-color: #FFD54F;
+        }
+
+        .flower-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .option-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        .option-button:hover {
+            background-color: #1976D2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .ai-analysis-stage {
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .ai-analysis-stage.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* CNN Visualization Styles */
+        .cnn-visualization {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .cnn-layer {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .cnn-layer:hover {
+            background-color: #f9f9f9;
+        }
+
+        .cnn-layer img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .cnn-explanation {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .cnn-explanation strong {
+            color: #2196F3;
+        }
+
+        /* Success Modal Styles */
+        #success-modal .success-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        #success-modal .flower-details {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        #success-modal .flower-details img {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        #success-modal .flower-info ul {
+            list-style-type: none;
+            text-align: left;
+        }
+
+        #success-modal .feature-highlights {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #success-modal .feature-highlights span {
+            background-color: #e0f7fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        #success-modal .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #success-modal .action-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #success-modal .next-flower {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        #success-modal .show-details {
+            background-color: #FFC107;
+            color: black;
+        }
+
+        /* AI Thought Process Styles */
+        .ai-thought-process {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .thought-process-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .thought-process {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .thought-process-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .thought-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .thought-text {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .user-guess {
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .user-guess strong {
+            color: #4CAF50;
+        }
+
+       
+       
+
+
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header -->
+        <div class="game-header">
+            <div>🕵️ Pushpagya</div>
+            <div>Score: 0 | Rank: Junior </div>
+        </div>
+
+        <!-- Flower Image -->
+        <div class="flower-image">
+            <img src="https://www.birdsandblooms.com/wp-content/uploads/2023/07/251579391_1_Ashley_Waters_BNB_BYPC2020.jpg?fit=700,467" alt="Flower Image">
+      
+        </div>
+
+        <!-- AI Hint -->
+        <div class="ai-hint">
+            AI Hint: Click to see how I analyze flowers!
+        </div>
+
+        <!-- Flower Options -->
+        <div class="flower-options">
+            <button class="option-button">Rose</button>
+            <button class="option-button">Sunflower</button>
+            <button class="option-button">Tulip</button>
+            <button class="option-button">Daisy</button>
+        </div>
+    </div>
+
+    <!-- AI Hint Modal -->
+    <div id="ai-hint-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>How AI Sees This Flower</h2>
+            
+            <!-- Original Content -->
+            <div class="ai-analysis-stage" id="stage1">
+                <h3>Step 1: Shape Detection</h3>
+                <p>I'm tracing the flower's outline and basic shape!</p>
+                <img src="https://via.placeholder.com/250x150" alt="Edge Detection">
+            </div>
+            
+            <div class="ai-analysis-stage" id="stage2">
+                <h3>Step 2: Color and Texture</h3>
+                <p>Analyzing unique color patterns and textures</p>
+                <img src="https://via.placeholder.com/250x150" alt="Color Analysis">
+            </div>
+            
+            <div class="ai-analysis-stage" id="stage3">
+                <h3>Step 3: Feature Comparison</h3>
+                <p>Matching distinctive flower characteristics</p>
+                <img src="https://via.placeholder.com/250x150" alt="Feature Comparison">
+            </div>
+
+            <!-- CNN Visualization -->
+            <div class="cnn-visualization">
+                <div class="cnn-layer" onclick="showExplanation('input')">
+                    <img src="https://via.placeholder.com/50" alt="Input Layer">
+                    <div class="cnn-explanation"><strong>Input Layer</strong></div>
+                </div>
+                <div class="cnn-layer" onclick="showExplanation('convolution')">
+                    <img src="https://via.placeholder.com/50" alt="Convolution Layer">
+                    <div class="cnn-explanation"><strong>Convolution</strong></div>
+                </div>
+                <div class="cnn-layer" onclick="showExplanation('pooling')">
+                    <img src="https://via.placeholder.com/50" alt="Pooling Layer">
+                    <div class="cnn-explanation"><strong>Pooling</strong></div>
+                </div>
+                <div class="cnn-layer" onclick="showExplanation('fully-connected')">
+                    <img src="https://via.placeholder.com/50" alt="Fully Connected Layer">
+                    <div class="cnn-explanation"><strong>Fully Connected</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="success-header">
+                <h2>🎉 Excellent Detective Work! 🌸</h2>
+            </div>
+            
+            <div class="success-body">
+                <h3>You Correctly Identified: Sunflower</h3>
+                
+                <div class="flower-details">
+                    <img src="https://via.placeholder.com/200" alt="Sunflower">
+                    
+                    <div class="flower-info">
+                        <h4>Sunflower Fun Facts:</h4>
+                        <ul>
+                            <li>Scientific Name: Helianthus annuus</li>
+                            <li>Native to North America</li>
+                            <li>Can grow up to 12 feet tall!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- AI Thought Process Section -->
+                <div class="ai-thought-process">
+                    <h4>AI Thought Process:</h4>
+                    <div class="thought-process-container">
+                        <div class="thought-process">
+                            <div class="thought-process-line">
+                                <span class="thought-icon">🤖</span>
+                                <span class="thought-text">Noticed yellow petals</span>
+                            </div>
+                            <div class="thought-process-line">
+                                <span class="thought-icon">🤖</span>
+                                <span class="thought-text">Recognized circular shape</span>
+                            </div>
+                            <div class="thought-process-line">
+                                <span class="thought-icon">🤖</span>
+                                <span class="thought-text">Matched to: <strong>SUNFLOWER</strong></span>
+                            </div>
+                        </div>
+                        <div class="user-guess">
+                            <p>Your Guess: <strong>Sunflower</strong></p>
+                            <p>AI Confidence: <strong>92%</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="success-footer">
+                <div class="score-update">
+                    <p>🏆 Points Earned: +50</p>
+                    <p>🥇 Detective Rank: Junior Detective</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="next-flower">Next Flower</button>
+                    <button class="show-details">Learn More</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+         // Option Button Interaction
+         const optionButtons = document.querySelectorAll('.option-button');
+        const successModal = document.getElementById('success-modal');
+
+        optionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Simulate correct guess for Sunflower
+                if (this.textContent === 'Sunflower') {
+                    successModal.style.display = 'block';
+                } else {
+                    alert('Incorrect guess. Try again!');
+                }
+            });
+        });
+
+        // Success Modal Interactions
+        const nextFlowerButton = successModal.querySelector('.next-flower');
+        const showDetailsButton = successModal.querySelector('.show-details');
+
+        nextFlowerButton.addEventListener('click', function() {
+            successModal.style.display = 'none';
+            // Logic to load next flower would go here
+            alert('Loading next flower...');
+        });
+
+        showDetailsButton.addEventListener('click', function() {
+            // Open additional educational resources
+            alert('More detailed flower information will be shown here!');
+        });
+        // AI Hint Modal Interaction
+        const aiHint = document.querySelector('.ai-hint');
+        const aiHintModal = document.getElementById('ai-hint-modal');
+        const closeAiHintModal = aiHintModal.querySelector('.modal-close');
+
+        aiHint.addEventListener('click', function() {
+            aiHintModal.style.display = 'block';
+            
+            // Animate stages
+            setTimeout(() => document.getElementById('stage1').classList.add('active'), 300);
+            setTimeout(() => document.getElementById('stage2').classList.add('active'), 600);
+            setTimeout(() => document.getElementById('stage3').classList.add('active'), 900);
+        });
+
+        closeAiHintModal.addEventListener('click', function() {
+            aiHintModal.style.display = 'none';
+            
+            // Remove active classes
+            document.getElementById('stage1').classList.remove('active');
+            document.getElementById('stage2').classList.remove('active');
+            document.getElementById('stage3').classList.remove('active');
+        });
+
+        // CNN Layer Explanation
+        function showExplanation(layer) {
+            let explanation = '';
+            switch (layer) {
+                case 'input':
+                    explanation = 'The input layer takes the flower image as a grid of pixels.';
+                    break;
+                case 'convolution':
+                    explanation = 'The convolution layer applies filters to detect edges, textures, and patterns.';
+                    break;
+                case 'pooling':
+                    explanation = 'The pooling layer reduces the image size while preserving important features.';
+                    break;
+                case 'fully-connected':
+                    explanation = 'The fully connected layer identifies the flower type based on extracted features.';
+                    break;
+            }
+            alert(explanation);
+        }
+    </script>
+</body>
+</html>
