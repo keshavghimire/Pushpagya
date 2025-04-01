@@ -1,4 +1,3 @@
-# model.py
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -10,14 +9,11 @@ from tensorflow.keras.models import load_model
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
 import gradio as gr
-
-# Directory for student-uploaded images
-DATASET_DIR = "student_dataset"
+import os
 
 def create_model(num_classes):
     base_model = MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights="imagenet")
     base_model.trainable = False  
-
     model = models.Sequential([
         base_model,
         layers.GlobalAveragePooling2D(),
@@ -25,21 +21,23 @@ def create_model(num_classes):
         layers.Dropout(0.3),
         layers.Dense(num_classes, activation="softmax")
     ])
-
     model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     return model
 
-def train_model(progress):
+def train_model(progress, user_folder):
     global model
     datagen = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.2)
     train_gen = datagen.flow_from_directory(
-        DATASET_DIR, target_size=(224, 224), batch_size=16,
+        user_folder, target_size=(224, 224), batch_size=16,
         class_mode="sparse", subset="training"
     )
     val_gen = datagen.flow_from_directory(
-        DATASET_DIR, target_size=(224, 224), batch_size=16,
+        user_folder, target_size=(224, 224), batch_size=16,
         class_mode="sparse", subset="validation"
     )
+    print(f"Debug: Training with {train_gen.samples} images in {len(train_gen.class_indices)} classes")
+    if train_gen.samples == 0:
+        return "🌸 Oops! No images found to train on. Please upload some flower pictures first! 🌟📸", gr.update(visible=False)
     model = create_model(num_classes=len(train_gen.class_indices))
 
     class ProgressCallback(tf.keras.callbacks.Callback):
@@ -61,22 +59,27 @@ def train_model(progress):
                 desc=f"🌼 Step {current_step}/{self.steps_per_epoch}: Robot is learning fast! 🌸📸"
             )
 
-    history = model.fit(
-        train_gen, 
-        validation_data=val_gen, 
-        epochs=10,
-        callbacks=[ProgressCallback(progress)]
-    )
-    model.save("student_trained_model.h5")
-    # Return tuple: message and visibility update for "Now Test Me!" button
-    return ("🌺 Hooray! The robot is super smart now! Click 'Now Test Me!' to continue! 🌸📸", 
-            gr.update(visible=True))
+    try:
+        history = model.fit(
+            train_gen, 
+            validation_data=val_gen, 
+            epochs=10,
+            callbacks=[ProgressCallback(progress)]
+        )
+        save_path = os.path.abspath(f"{user_folder}/student_trained_model.h5")
+        model.save(save_path)
+        print(f"Debug: Model saved to {save_path}")
+        return ("🌺 Hooray! The robot is super smart now! Click 'Now Test Me!' to continue! 🌸📸", 
+                gr.update(visible=True))
+    except Exception as e:
+        print(f"Error during training: {e}")
+        return f"🌸 Oops! Something went wrong while training: {e} 🌟📸", gr.update(visible=False)
 
-def evaluate_model():
-    model = load_model("student_trained_model.h5")
+def evaluate_model(user_folder):
+    model = load_model(os.path.abspath(f"{user_folder}/student_trained_model.h5"))
     datagen = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.2)
     val_gen = datagen.flow_from_directory(
-        DATASET_DIR, target_size=(224, 224), batch_size=16,
+        user_folder, target_size=(224, 224), batch_size=16,
         class_mode="sparse", subset="validation", shuffle=False
     )
     predictions = model.predict(val_gen)
@@ -89,15 +92,15 @@ def evaluate_model():
     plt.xlabel("Predicted 🌸")
     plt.ylabel("Actual 🌸")
     plt.title("Confusion Matrix 🌟📸")
-    plt.savefig("confusion_matrix.png")
+    plt.savefig(os.path.abspath(f"{user_folder}/confusion_matrix.png"))
     plt.close()
-    return class_report, "confusion_matrix.png 🌸"
+    return class_report, f"{user_folder}/confusion_matrix.png 🌸"
 
-def predict_unlabeled(img):
-    model = load_model("student_trained_model.h5")
+def predict_unlabeled(img, user_folder):
+    model = load_model(os.path.abspath(f"{user_folder}/student_trained_model.h5"))
     datagen = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.2)
     train_gen = datagen.flow_from_directory(
-        DATASET_DIR, target_size=(224, 224), batch_size=16,
+        user_folder, target_size=(224, 224), batch_size=16,
         class_mode="sparse", subset="training"
     )
     class_labels = list(train_gen.class_indices.keys())

@@ -1,4 +1,3 @@
-# templates.py
 LOGIN_PAGE_LEFT_HTML = """
 <div style="
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -40,7 +39,7 @@ LOGIN_PAGE_LEFT_HTML = """
             <ul style="padding-left: 15px; margin: 0;">
                 <li style="margin-bottom: 3px; font-size: 0.85em;">📸 <strong>Add pictures</strong> of flowers 🌸 like roses or sunflowers</li>
                 <li style="margin-bottom: 3px; font-size: 0.85em;">🏷️ <strong>Teach me</strong> their names and features 🌺</li>
-                <li style Hyde="margin-bottom: 3px; font-size: 0.85em;">🔍 <strong>Test me</strong> with new flowers 🌸 to see what I've learned 📸</li>
+                <li style="margin-bottom: 3px; font-size: 0.85em;">🔍 <strong>Test me</strong> with new flowers 🌸 to see what I've learned 📸</li>
             </ul>
         </div>
         

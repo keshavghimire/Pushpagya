@@ -2,3 +2,5 @@
 student_dataset
 *.h5
 .DS_Store
+user_datasets
+__pycache__
