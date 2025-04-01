@@ -4,14 +4,14 @@ from utils import validate_login, upload_images, upload_unlabeled, clear_inputs,
 from templates import LOGIN_PAGE_LEFT_HTML
 import os
 
+# Load CSS
 with open("styles.css", "r") as f:
     custom_css = f.read()
 
-current_user_folder = None
-
 def create_app():
-    global current_user_folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.getcwd()
+    print(f"Debug: Base directory set to {base_dir}")
 
     with gr.Blocks(theme="soft", css=custom_css, title="Flower Explorer 🌸📸") as app:
         gr.HTML("""
@@ -85,26 +85,25 @@ def create_app():
 
             # Event Handlers
             def set_user_folder_and_validate(firstname, lastname, grade):
-                global current_user_folder
-                current_user_folder = f"user_datasets/{firstname}_{lastname}"
-                print(f"Debug: Set current_user_folder to {current_user_folder}")
-                os.makedirs(current_user_folder, exist_ok=True)
-                print(f"Debug: Created folder {current_user_folder}")
+                user_folder = os.path.join(base_dir, f"user_datasets/{firstname}_{lastname}")
+                print(f"Debug: Setting user_folder to {user_folder}")
+                os.makedirs(user_folder, exist_ok=True)
+                print(f"Debug: Created folder {user_folder}")
                 login_result = validate_login(firstname, lastname, grade)
                 return (login_result[0], login_result[1], login_result[2], 
-                        current_user_folder,    # Update dataset_state
-                        gr.update(value=""),    # Clear firstname
-                        gr.update(value=""),    # Clear lastname
-                        gr.update(value=None))  # Clear grade
+                        user_folder,           # Update dataset_state
+                        gr.update(value=""),   # Clear firstname
+                        gr.update(value=""),   # Clear lastname
+                        gr.update(value=None)) # Clear grade
 
             def reset_everything(user_folder):
-                if user_folder:
-                    clear_dataset(user_folder)
+                # Do NOT clear the dataset - just reset UI for new session
+                print(f"Debug: Resetting UI for new session, preserving data in {user_folder}")
                 return (gr.update(visible=True),    # Show login_page
                         gr.update(visible=False),   # Hide ai_interface
                         gr.update(visible=True),    # Show add_teach_group
                         gr.update(visible=False),   # Hide guess_group
-                        "🌷 All cleared! Starting fresh! 🌸📸",  # reset_output
+                        "🌷 Ready for a new flower explorer! Data preserved 🌸📸",  # reset_output
                         None,                       # Clear imgs
                         "",                         # Clear label
                         "",                         # Clear upload_output
@@ -115,14 +114,21 @@ def create_app():
                         "",                         # Clear guess_output
                         None)                       # Clear dataset_state
 
+            # Login
             submit_btn.click(
                 fn=set_user_folder_and_validate,
                 inputs=[firstname, lastname, grade],
                 outputs=[login_page, ai_interface, error_msg, dataset_state, firstname, lastname, grade]
             )
 
+            # Upload images with dynamic table update
+            def handle_upload(imgs, label, user_folder):
+                result, table = upload_images(imgs, label, user_folder)
+                print(f"Debug: Upload result: {result}")
+                return result, table
+
             submit_btn_upload.click(
-                fn=lambda imgs, label, user_folder: upload_images(imgs, label, user_folder),
+                fn=handle_upload,
                 inputs=[imgs, label, dataset_state],
                 outputs=[upload_output, upload_table]
             )
@@ -133,8 +139,13 @@ def create_app():
                 outputs=[imgs, label]
             )
 
+            # Train with progress
+            def handle_train(user_folder):
+                result, test_btn_update = train_model(gr.Progress(), user_folder)
+                return result, test_btn_update
+
             train_btn.click(
-                fn=lambda user_folder: train_model(gr.Progress(), user_folder),
+                fn=handle_train,
                 inputs=[dataset_state],
                 outputs=[train_output, test_btn]
             )
