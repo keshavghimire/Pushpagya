@@ -15,7 +15,7 @@ LOGIN_PAGE_LEFT_HTML = """
         margin-bottom: 10px;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     ">
-        🌸 Pushpagya: Flower Recognition Adventure! 🤖
+        🌸 Pushpagya: Flower Recognition Adventure! 🤖📸
     </h1>
     
     <div style="
@@ -24,7 +24,7 @@ LOGIN_PAGE_LEFT_HTML = """
         border-radius: 10px;
         margin-bottom: 10px;
     ">
-        <p style="font-size: 0.9em; margin: 5px 0;">Hello, flower explorer! I'm Robo the Robot, and I need YOUR help to learn about flowers!</p>
+        <p style="font-size: 0.9em; margin: 5px 0;">Hello, flower explorer! I'm Robo the Robot 🤖, and I need YOUR help to learn about flowers! 🌸</p>
         
         <div style="
             display: flex;
@@ -32,15 +32,15 @@ LOGIN_PAGE_LEFT_HTML = """
             margin: 5px 0;
         ">
             <span style="font-size: 1.5em; margin-right: 10px;">🌷</span>
-            <span style="font-size: 0.9em;">Pushpagya means <strong>"flower knowledge"</strong> in Sanskrit!</span>
+            <span style="font-size: 0.9em;">Pushpagya means <strong>"flower knowledge"</strong> in Sanskrit! 🌟</span>
         </div>
         
         <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
             <h3 style="color: #6d4c41; margin: 0 0 5px 0; font-size: 1em;">What You'll Do:</h3>
             <ul style="padding-left: 15px; margin: 0;">
-                <li style="margin-bottom: 3px; font-size: 0.85em;">📸 <strong>Add pictures</strong> of flowers like roses or sunflowers</li>
-                <li style="margin-bottom: 3px; font-size: 0.85em;">🏷️ <strong>Teach me</strong> their names and features</li>
-                <li style="margin-bottom: 3px; font-size: 0.85em;">🔍 <strong>Test me</strong> with new flowers to see what I've learned</li>
+                <li style="margin-bottom: 3px; font-size: 0.85em;">📸 <strong>Add pictures</strong> of flowers 🌸 like roses or sunflowers</li>
+                <li style="margin-bottom: 3px; font-size: 0.85em;">🏷️ <strong>Teach me</strong> their names and features 🌺</li>
+                <li style Hyde="margin-bottom: 3px; font-size: 0.85em;">🔍 <strong>Test me</strong> with new flowers 🌸 to see what I've learned 📸</li>
             </ul>
         </div>
         
@@ -61,7 +61,7 @@ LOGIN_PAGE_LEFT_HTML = """
                     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
                     font-size: 0.8em;
                 ">
-                    🌼 Learn botany in a fun way
+                    🌼 Learn botany in a fun way 🌸
                 </div>
                 <div style="
                     background: white;
@@ -72,7 +72,7 @@ LOGIN_PAGE_LEFT_HTML = """
                     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
                     font-size: 0.8em;
                 ">
-                    🤖 See AI learning in action
+                    🤖 See AI learning in action 📸
                 </div>
                 <div style="
                     background: white;
@@ -83,14 +83,14 @@ LOGIN_PAGE_LEFT_HTML = """
                     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
                     font-size: 0.8em;
                 ">
-                    🌿 Become a nature expert
+                    🌿 Become a nature expert 🌸
                 </div>
             </div>
         </div>
     </div>
     
     <p style="text-align: center; font-style: italic; color: #6d4c41; font-size: 0.85em; margin: 5px 0;">
-        Ready to begin your journey as a flower scientist?
+        Ready to begin your journey as a flower scientist? 🌟📸
     </p>
 </div>
 """

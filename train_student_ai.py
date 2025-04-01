@@ -497,11 +497,11 @@ def create_app():
                                     clear_btn = gr.Button("🌿 Clear", variant="secondary")
                                     submit_btn_upload = gr.Button("🌼 Add Pics!", variant="primary")
 
-                            with gr.Column(scale=1, min_width=300):
+                            with gr.Column(scale=1, min_width=50):
                                 upload_output = gr.Textbox(
                                     label="🌟 Robo's Update",
                                     interactive=False,
-                                    lines=3,
+                                    lines=1,
                                     elem_classes="status-box"
                                 )
                                 upload_table = gr.Dataframe(

@@ -51,13 +51,13 @@ def train_model(progress):
 
         def on_epoch_begin(self, epoch, logs=None):
             self.current_epoch = epoch
-            self.progress(epoch/self.epochs, desc=f"🌷 Level {epoch + 1}/10: Teaching the robot!")
+            self.progress(epoch/self.epochs, desc=f"🌷 Level {epoch + 1}/10: Teaching the robot! 🌸📸")
 
         def on_batch_end(self, batch, logs=None):
             current_step = batch + 1
             self.progress(
                 (self.current_epoch * self.steps_per_epoch + current_step) / (self.epochs * self.steps_per_epoch),
-                desc=f"🌼 Step {current_step}/{self.steps_per_epoch}: Robot is learning fast!"
+                desc=f"🌼 Step {current_step}/{self.steps_per_epoch}: Robot is learning fast! 🌸📸"
             )
 
     history = model.fit(
@@ -67,7 +67,7 @@ def train_model(progress):
         callbacks=[ProgressCallback(progress)]
     )
     model.save("student_trained_model.h5")
-    return "🌺 Hooray! The robot is super smart now! Let's see what it can do!"
+    return "🌺 Hooray! The robot is super smart now! Let's see what it can do with pics! 🌸📸"
 
 def evaluate_model():
     model = load_model("student_trained_model.h5")
@@ -83,12 +83,12 @@ def evaluate_model():
     class_report = classification_report(y_true, y_pred, target_names=list(val_gen.class_indices.keys()))
     plt.figure(figsize=(6, 6))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=val_gen.class_indices.keys(), yticklabels=val_gen.class_indices.keys())
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted 🌸")
+    plt.ylabel("Actual 🌸")
+    plt.title("Confusion Matrix 🌟📸")
     plt.savefig("confusion_matrix.png")
     plt.close()
-    return class_report, "confusion_matrix.png"
+    return class_report, "confusion_matrix.png 🌸"
 
 def predict_unlabeled(img):
     model = load_model("student_trained_model.h5")
@@ -104,8 +104,8 @@ def predict_unlabeled(img):
     predictions = model.predict(img_array)[0]
     top_3_idx = np.argsort(predictions)[-3:][::-1]
     top_3_labels = [class_labels[i] for i in top_3_idx]
-    top_3_probs = [round(100 * predictions[i], 2) for i in top_3_idx]
-    prediction_text = f"🤖 The robot thinks this picture is:\n"
+    top_3_probs = [predictions[i] * 100 for i in top_3_idx]  # Multiply by 100 for percentage
+    prediction_text = f"🤖 The robot thinks this picture 🌸 is:\n"
     for label, prob in zip(top_3_labels, top_3_probs):
-        prediction_text += f"• A {label} ({prob}% sure)\n"
+        prediction_text += f"• A {label} ({prob:.2f}% sure) 🌺📸\n"  # Format to 2 decimal places
     return prediction_text
