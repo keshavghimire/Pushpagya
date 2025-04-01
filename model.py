@@ -9,6 +9,7 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.models import load_model
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
+import gradio as gr
 
 # Directory for student-uploaded images
 DATASET_DIR = "student_dataset"
@@ -67,7 +68,9 @@ def train_model(progress):
         callbacks=[ProgressCallback(progress)]
     )
     model.save("student_trained_model.h5")
-    return "🌺 Hooray! The robot is super smart now! Let's see what it can do with pics! 🌸📸"
+    # Return tuple: message and visibility update for "Now Test Me!" button
+    return ("🌺 Hooray! The robot is super smart now! Click 'Now Test Me!' to continue! 🌸📸", 
+            gr.update(visible=True))
 
 def evaluate_model():
     model = load_model("student_trained_model.h5")
@@ -104,8 +107,8 @@ def predict_unlabeled(img):
     predictions = model.predict(img_array)[0]
     top_3_idx = np.argsort(predictions)[-3:][::-1]
     top_3_labels = [class_labels[i] for i in top_3_idx]
-    top_3_probs = [predictions[i] * 100 for i in top_3_idx]  # Multiply by 100 for percentage
+    top_3_probs = [predictions[i] * 100 for i in top_3_idx]
     prediction_text = f"🤖 The robot thinks this picture 🌸 is:\n"
     for label, prob in zip(top_3_labels, top_3_probs):
-        prediction_text += f"• A {label} ({prob:.2f}% sure) 🌺📸\n"  # Format to 2 decimal places
+        prediction_text += f"• A {label} ({prob:.2f}% sure) 🌺📸\n"
     return prediction_text

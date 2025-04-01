@@ -77,109 +77,120 @@ def create_app():
 
         # AI Interface (initially hidden)
         with gr.Group(visible=False) as ai_interface:
-            gr.Markdown("### 🤖 Hi, I'm Robo the Robot! Let's have fun with flowers! 🌺📸", elem_classes="step-header")
-            with gr.Tabs():
-                with gr.Tab("Add & Teach 🌸"):
-                    with gr.Column(scale=1, min_width=0):
-                        gr.Markdown(
-                            "## 🌷 Step 1: Add Pictures for Robo to Learn! 🌟📸",
-                            elem_classes="step-header"
-                        )
-                        gr.Markdown(
-                            "Pick some flower pictures 🌸 and name them—like 'Roses' or 'Sunflowers'! Let's grow Robo's brain! 🌼",
-                            elem_classes="step-desc"
-                        )
+            # Add & Teach Section (visible initially, includes greeting)
+            with gr.Group(visible=True) as add_teach_group:
+                gr.Markdown(
+                    "## Add Pictures for Robo to Learn! 🌟📸",
+                        elem_classes="step-header",
+                        elem_id="step1-header"
+                )
+                gr.Markdown(
+                    "Pick some flower pictures 🌸 and name them—like 'Roses' or 'Sunflowers'! Let's grow Robo's brain! 🌼",
+                    elem_classes="step-desc"
+                )
 
-                        with gr.Row(equal_height=True):
-                            with gr.Column(scale=1, min_width=300):
-                                imgs = gr.Files(
-                                    file_types=["image"],
-                                    label="🌸 Drop Your Flower Pics Here! (Files Only) 📸",
-                                    file_count="multiple",
-                                    height=150,
-                                    elem_classes="flower-upload"
-                                )
-                                label = gr.Textbox(
-                                    label="🌺 Name This Flower Group 🌸",
-                                    placeholder="e.g., Daisies or Tulips",
-                                    elem_classes="flower-textbox"
-                                )
-                                with gr.Row():
-                                    clear_btn = gr.Button("🌿 Clear 🌸", variant="secondary")
-                                    submit_btn_upload = gr.Button("🌼 Add Pics! 📸", variant="primary")
-
-                            with gr.Column(scale=1, min_width=300):
-                                upload_output = gr.Textbox(
-                                    label="🌟 Robo's Update 🌸",
-                                    interactive=False,
-                                    lines=1,
-                                    elem_classes="status-box"
-                                )
-                                upload_table = gr.Dataframe(
-                                    headers=["Flower Group 🌸", "Pic Count 📸"],
-                                    interactive=False,
-                                    label="🌸 Your Flower Collection 🌟",
-                                    wrap=True,
-                                    elem_classes="flower-table"
-                                )
-
-                        gr.Markdown(
-                            "## 🌻 Step 2: Teach Robo the Flower Magic! 🚀📸",
-                            elem_classes="step-header"
+                with gr.Row(equal_height=True):
+                    with gr.Column(scale=1, min_width=300):
+                        imgs = gr.Files(
+                            file_types=["image"],
+                            label="🌸 Drop Your Flower Pics Here! (Files Only) 📸",
+                            file_count="multiple",
+                            height=150,
+                            elem_classes="flower-upload"
                         )
-                        gr.Markdown(
-                            "Press the button to train Robo 🤖—it's like giving it a flower superpower! Watch it learn! 🌟🌸",
-                            elem_classes="step-desc"
+                        label = gr.Textbox(
+                            label="🌺 Name This Flower Group 🌸",
+                            placeholder="e.g., Daisies or Tulips",
+                            elem_classes="flower-textbox"
                         )
-                        train_btn = gr.Button("🌈 Teach Robo Now! 🌸📸", variant="primary")
-                        train_output = gr.Textbox(
-                            label="🌼 Robo's Learning Diary 🌸",
+                        with gr.Row():
+                            clear_btn = gr.Button("🌿 Clear 🌸", variant="secondary")
+                            submit_btn_upload = gr.Button("🌼 Add Pics! 📸", variant="primary")
+
+                    with gr.Column(scale=1, min_width=300):
+                        upload_output = gr.Textbox(
+                            label="🌟 Robo's Update 🌸",
                             interactive=False,
-                            lines=2,
+                            lines=1,
                             elem_classes="status-box"
                         )
-
-                        submit_btn_upload.click(
-                            fn=upload_images,
-                            inputs=[imgs, label],
-                            outputs=[upload_output, upload_table]
-                        )
-                        clear_btn.click(
-                            fn=clear_inputs,
-                            inputs=[],
-                            outputs=[imgs, label]
-                        )
-                        # Updated train_btn.click with progress
-                        train_btn.click(
-                            fn=lambda: train_model(gr.Progress()),
-                            inputs=[],
-                            outputs=train_output
+                        upload_table = gr.Dataframe(
+                            headers=["Flower Group 🌸", "Pic Count 📸"],
+                            interactive=False,
+                            label="🌸 Your Flower Collection 🌟",
+                            wrap=True,
+                            elem_classes="flower-table"
                         )
 
-                with gr.Tab("Guess & Reset 🌺"):
-                    with gr.Column():
-                        gr.Markdown("## 🌺 Guess the Picture! 📸", elem_classes="step-header")
-                        gr.Markdown("Upload a picture 🌸 and see if the robot thinks it's a flower! 🌷", elem_classes="step-desc")
-                        with gr.Row():
-                            with gr.Column(scale=1):
-                                guess_img = gr.Image(type="pil", label="🌸 Upload a Mystery Picture! 📸")
-                                guess_btn = gr.Button("Let the Robot Guess! 🤖🌸", variant="primary")
-                        guess_output = gr.Textbox(label="Robot's Guess 🌟🌸")
-                        gr.Markdown("## 🌷 Start Over 🌸", elem_classes="step-header")
-                        gr.Markdown("Click the button below to clear everything and start a new flower adventure! 🌼📸", elem_classes="step-desc")
-                        reset_btn = gr.Button("Start Over 🧹🌸", variant="primary")
-                        reset_output = gr.Textbox(label="Reset Status 🌟🌸")
+                gr.Markdown(
+                    "## Teach Robo the Flower Magic! 🚀📸",
+                    elem_classes="step-header"
+                )
+                gr.Markdown(
+                    "Press the button to train Robo 🤖—it's like giving it a flower superpower! Watch it learn! 🌟🌸",
+                    elem_classes="step-desc"
+                )
+                train_btn = gr.Button("🌈 Teach Robo Now! 🌸📸", variant="primary")
+                train_output = gr.Textbox(
+                    label="🌼 Robo's Learning Diary 🌸",
+                    interactive=False,
+                    lines=2,
+                    elem_classes="status-box"
+                )
+                # "Now Test Me!" button, initially hidden
+                test_btn = gr.Button("🌟 Now Test Me! 📸", variant="primary", visible=False)
 
-                        guess_btn.click(
-                            fn=predict_unlabeled,
-                            inputs=guess_img,
-                            outputs=guess_output
-                        )
-                        reset_btn.click(
-                            fn=clear_dataset,
-                            inputs=[],
-                            outputs=reset_output
-                        )
+            # Guess Group (initially hidden, renamed to "Guess")
+            with gr.Group(visible=False) as guess_group:
+                gr.Markdown(
+                    "## 🌺 Guess Time! 📸",
+                    elem_classes="step-header"
+                )
+                guess_img = gr.Image(type="pil", label="🌸 Upload a Mystery Picture! 📸")
+                guess_btn = gr.Button("🌺 Guess Now! 📸", variant="primary")
+                guess_output = gr.Textbox(label="Robot's Guess 🌟🌸")
+                # New Reset/Logout button
+                reset_btn = gr.Button("🧹 Reset 🌸", variant="secondary")
+                reset_output = gr.Textbox(label="Reset Status 🌟🌸")
+
+            # Event handlers
+            submit_btn_upload.click(
+                fn=upload_images,
+                inputs=[imgs, label],
+                outputs=[upload_output, upload_table]
+            )
+            clear_btn.click(
+                fn=clear_inputs,
+                inputs=[],
+                outputs=[imgs, label]
+            )
+            # Train button shows "Now Test Me!" button after training
+            train_btn.click(
+                fn=lambda: train_model(gr.Progress()),
+                inputs=[],
+                outputs=[train_output, test_btn]
+            )
+            # "Now Test Me!" button hides Add & Teach and shows Guess
+            def switch_to_guess():
+                return gr.update(visible=False), gr.update(visible=True)
+            
+            test_btn.click(
+                fn=switch_to_guess,
+                inputs=[],
+                outputs=[add_teach_group, guess_group]
+            )
+            # Guess button functionality (only guessing)
+            guess_btn.click(
+                fn=predict_unlabeled,
+                inputs=guess_img,
+                outputs=guess_output
+            )
+            # Reset button functionality
+            reset_btn.click(
+                fn=clear_dataset,
+                inputs=[],
+                outputs=reset_output
+            )
 
         submit_btn.click(
             fn=validate_login,
