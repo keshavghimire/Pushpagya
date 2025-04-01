@@ -22,7 +22,6 @@ def create_app():
                 favicon.type = 'image/x-icon';
                 favicon.href = 'favicon.ico';
                 document.head.appendChild(favicon);
-
                 const elem = document.documentElement;
                 if (elem.requestFullscreen) {
                     elem.requestFullscreen();
@@ -31,6 +30,10 @@ def create_app():
         </script>
         """)
 
+        # App state
+        dataset_state = gr.State(value=None)
+
+        # LOGIN SCREEN
         with gr.Group() as login_page:
             with gr.Row():
                 with gr.Column(scale=1):
@@ -49,7 +52,9 @@ def create_app():
                     submit_btn = gr.Button("🌸 Let's Start the Flower Adventure! 🌸📸")
                     error_msg = gr.Markdown(visible=False)
 
+        # AI INTERFACE
         with gr.Group(visible=False) as ai_interface:
+            # ADD & TEACH SECTION
             with gr.Group(visible=True) as add_teach_group:
                 gr.Markdown("## Add Pictures for Robo to Learn! 🌟📸", elem_classes="step-header", elem_id="step1-header")
                 gr.Markdown("Pick some flower pictures 🌸 and name them—like 'Roses' or 'Sunflowers'! Let's grow Robo's brain! 🌼", elem_classes="step-desc")
@@ -69,14 +74,16 @@ def create_app():
                 train_output = gr.Textbox(label="🌼 Robo's Learning Diary 🌸", interactive=False, lines=2, elem_classes="status-box")
                 test_btn = gr.Button("🌟 Now Test Me! 📸", variant="primary", visible=False)
 
+            # GUESS SECTION
             with gr.Group(visible=False) as guess_group:
                 gr.Markdown("## 🌺 Guess Time! 📸", elem_classes="step-header")
                 guess_img = gr.Image(type="pil", label="🌸 Upload a Mystery Picture! 📸")
                 guess_btn = gr.Button("🌺 Guess Now! 📸", variant="primary")
                 guess_output = gr.Textbox(label="Robot's Guess 🌟🌸")
                 reset_btn = gr.Button("🧹 Reset 🌸", variant="secondary")
-               
+                reset_output = gr.Textbox(label="Reset Status 🌟🌸")
 
+            # Event Handlers
             def set_user_folder_and_validate(firstname, lastname, grade):
                 global current_user_folder
                 current_user_folder = f"user_datasets/{firstname}_{lastname}"
@@ -84,29 +91,72 @@ def create_app():
                 os.makedirs(current_user_folder, exist_ok=True)
                 print(f"Debug: Created folder {current_user_folder}")
                 login_result = validate_login(firstname, lastname, grade)
-                # Clear login fields when switching to AI interface
                 return (login_result[0], login_result[1], login_result[2], 
-                        gr.update(value=""), gr.update(value=""), gr.update(value=None))
+                        current_user_folder,    # Update dataset_state
+                        gr.update(value=""),    # Clear firstname
+                        gr.update(value=""),    # Clear lastname
+                        gr.update(value=None))  # Clear grade
+
+            def reset_everything(user_folder):
+                if user_folder:
+                    clear_dataset(user_folder)
+                return (gr.update(visible=True),    # Show login_page
+                        gr.update(visible=False),   # Hide ai_interface
+                        gr.update(visible=True),    # Show add_teach_group
+                        gr.update(visible=False),   # Hide guess_group
+                        "🌷 All cleared! Starting fresh! 🌸📸",  # reset_output
+                        None,                       # Clear imgs
+                        "",                         # Clear label
+                        "",                         # Clear upload_output
+                        None,                       # Clear upload_table
+                        "",                         # Clear train_output
+                        gr.update(visible=False),   # Reset test_btn visibility
+                        None,                       # Clear guess_img
+                        "",                         # Clear guess_output
+                        None)                       # Clear dataset_state
 
             submit_btn.click(
                 fn=set_user_folder_and_validate,
                 inputs=[firstname, lastname, grade],
-                outputs=[login_page, ai_interface, error_msg, firstname, lastname, grade]
+                outputs=[login_page, ai_interface, error_msg, dataset_state, firstname, lastname, grade]
             )
 
             submit_btn_upload.click(
-                fn=lambda imgs, label: upload_images(imgs, label, current_user_folder),
-                inputs=[imgs, label],
+                fn=lambda imgs, label, user_folder: upload_images(imgs, label, user_folder),
+                inputs=[imgs, label, dataset_state],
                 outputs=[upload_output, upload_table]
             )
-            clear_btn.click(fn=clear_inputs, inputs=[], outputs=[imgs, label])
-            train_btn.click(fn=lambda: train_model(gr.Progress(), current_user_folder), inputs=[], outputs=[train_output, test_btn])
-            test_btn.click(fn=lambda: (gr.update(visible=False), gr.update(visible=True)), inputs=[], outputs=[add_teach_group, guess_group])
-            guess_btn.click(fn=lambda img: predict_unlabeled(img, current_user_folder), inputs=guess_img, outputs=guess_output)
-            reset_btn.click(
-                fn=lambda: clear_dataset(current_user_folder, login_page, ai_interface),
+
+            clear_btn.click(
+                fn=clear_inputs,
                 inputs=[],
-                outputs=[reset_output, login_page, ai_interface]
+                outputs=[imgs, label]
+            )
+
+            train_btn.click(
+                fn=lambda user_folder: train_model(gr.Progress(), user_folder),
+                inputs=[dataset_state],
+                outputs=[train_output, test_btn]
+            )
+
+            test_btn.click(
+                fn=lambda: (gr.update(visible=False), gr.update(visible=True)),
+                inputs=[],
+                outputs=[add_teach_group, guess_group]
+            )
+
+            guess_btn.click(
+                fn=lambda img, user_folder: predict_unlabeled(img, user_folder),
+                inputs=[guess_img, dataset_state],
+                outputs=[guess_output]
+            )
+
+            reset_btn.click(
+                fn=reset_everything,
+                inputs=[dataset_state],
+                outputs=[login_page, ai_interface, add_teach_group, guess_group, reset_output,
+                        imgs, label, upload_output, upload_table, train_output, test_btn,
+                        guess_img, guess_output, dataset_state]
             )
 
     return app

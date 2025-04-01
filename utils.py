@@ -91,7 +91,9 @@ def clear_inputs():
     print("Debug: Clear button pressed")
     return None, ""
 
-def clear_dataset(user_folder, login_page, ai_interface):
-    # No longer deleting the user_folder, just resetting the UI for a new session
-    print(f"Debug: Resetting session for {user_folder} without deleting data")
-    return "🌷 Session reset! Start a new flower adventure! 🌸📸", gr.update(visible=True), gr.update(visible=False)
+def clear_dataset(user_folder):
+    print(f"Debug: Clearing dataset for {user_folder}")
+    if os.path.exists(user_folder):
+        shutil.rmtree(user_folder)
+    os.makedirs(user_folder, exist_ok=True)
+    return "🌷 Session reset! Start a new flower adventure! 🌸📸"
