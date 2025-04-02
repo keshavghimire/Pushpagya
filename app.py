@@ -13,14 +13,14 @@ def create_app():
     base_dir = os.getcwd()
     print(f"Debug: Base directory set to {base_dir}")
 
-    with gr.Blocks(theme="soft", css=custom_css, title="Flower Explorer 🌸📸") as app:
+    with gr.Blocks(theme="soft", css=custom_css, title="Pushpagya") as app:
         gr.HTML("""
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const favicon = document.createElement('link');
                 favicon.rel = 'icon';
                 favicon.type = 'image/x-icon';
-                favicon.href = 'favicon.ico';
+                favicon.href = 'icon.png';
                 document.head.appendChild(favicon);
                 const elem = document.documentElement;
                 if (elem.requestFullscreen) {
