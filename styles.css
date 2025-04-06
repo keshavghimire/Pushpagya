@@ -51,15 +51,21 @@ button:hover {
     border: 2px solid #ffca28 !important;
     border-radius: 10px !important;
     padding: 5px !important;
-    background: rgba(255, 255, 255, 0.9) !important;
     margin-bottom: 10px !important;
 }
 .flower-upload {
-    max-height: 150px !important;
+    max-height: 200px !important;
+    background: transparent !important;
+}
+.flower-upload .gallery-item {
+    width: 80px !important;
+    height: 80px !important;
+    object-fit: contain !important;
 }
 .flower-table {
     max-height: 700px !important;
     overflow-y: auto !important;
+    background: rgba(255, 255, 255, 0.9) !important;
 }
 .gr-row {
     align-items: stretch !important;
@@ -86,6 +92,10 @@ button:hover {
     }
     .gr-column {
         min-width: 100% !important;
+    }
+    .flower-upload .gallery-item {
+        width: 60px !important;
+        height: 60px !important;
     }
 }
 .custom-input {

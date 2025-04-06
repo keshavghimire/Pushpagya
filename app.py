@@ -60,7 +60,12 @@ def create_app():
                 gr.Markdown("Pick some flower pictures 🌸 and name them—like 'Roses' or 'Sunflowers'! Let's grow Robo's brain! 🌼", elem_classes="step-desc")
                 with gr.Row(equal_height=True):
                     with gr.Column(scale=1, min_width=300):
-                        imgs = gr.Files(file_types=["image"], label="🌸 Drop Your Flower Pics Here! (Files Only) 📸", file_count="multiple", height=150, elem_classes="flower-upload")
+                        imgs = gr.Gallery(label="🌸 Drop Your Flower Pics Here! (Files Only) 📸", 
+                                         type="filepath", 
+                                         height=200, 
+                                         elem_classes="flower-upload", 
+                                         preview=True, 
+                                         object_fit="contain")
                         label = gr.Textbox(label="🌺 Name This Flower Group 🌸", placeholder="e.g., Daisies or Tulips", elem_classes="flower-textbox")
                         with gr.Row():
                             clear_btn = gr.Button("🌿 Clear 🌸", variant="secondary")
@@ -79,7 +84,8 @@ def create_app():
                 gr.Markdown("## 🌺 Guess Time! 📸", elem_classes="step-header")
                 guess_img = gr.Image(type="pil", label="🌸 Upload a Mystery Picture! 📸")
                 guess_btn = gr.Button("🌺 Guess Now! 📸", variant="primary")
-                guess_output = gr.Textbox(label="Robot's Guess 🌟🌸")
+                # Updated: Changed from gr.Textbox to gr.HTML to render HTML output
+                guess_output = gr.HTML(label="Robot's Guess 🌟🌸")
                 reset_btn = gr.Button("🧹 Reset 🌸", variant="secondary")
                 reset_output = gr.Textbox(label="Reset Status 🌟🌸")
 
@@ -97,7 +103,6 @@ def create_app():
                         gr.update(value=None)) # Clear grade
 
             def reset_everything(user_folder):
-                # Do NOT clear the dataset - just reset UI for new session
                 print(f"Debug: Resetting UI for new session, preserving data in {user_folder}")
                 return (gr.update(visible=True),    # Show login_page
                         gr.update(visible=False),   # Hide ai_interface
@@ -121,16 +126,18 @@ def create_app():
                 outputs=[login_page, ai_interface, error_msg, dataset_state, firstname, lastname, grade]
             )
 
-            # Upload images with dynamic table update
+            # Upload images with dynamic table update and auto-clear
             def handle_upload(imgs, label, user_folder):
                 result, table = upload_images(imgs, label, user_folder)
                 print(f"Debug: Upload result: {result}")
-                return result, table
+                if "Error" not in result and "Oops" not in result:
+                    return result, table, None, ""  # Clear imgs and label
+                return result, table, imgs, label  # Keep inputs if there's an error
 
             submit_btn_upload.click(
                 fn=handle_upload,
                 inputs=[imgs, label, dataset_state],
-                outputs=[upload_output, upload_table]
+                outputs=[upload_output, upload_table, imgs, label]
             )
 
             clear_btn.click(
@@ -139,7 +146,7 @@ def create_app():
                 outputs=[imgs, label]
             )
 
-            # Train with progress
+            # Track progress during training
             def handle_train(user_folder):
                 result, test_btn_update = train_model(gr.Progress(), user_folder)
                 return result, test_btn_update
@@ -157,7 +164,7 @@ def create_app():
             )
 
             guess_btn.click(
-                fn=lambda img, user_folder: predict_unlabeled(img, user_folder),
+                fn=predict_unlabeled,
                 inputs=[guess_img, dataset_state],
                 outputs=[guess_output]
             )
@@ -174,4 +181,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.launch(inbrowser=True, show_api=False)
+    app.launch(inbrowser=True, show_api=False, share=True)

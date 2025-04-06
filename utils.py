@@ -28,7 +28,11 @@ def upload_images(imgs, label, user_folder):
     if not imgs or not label:
         print("Debug: No images or label provided")
         return "🌸 Oops! Please upload some pictures 🌸 and give them a name! 📸", None
-    if not isinstance(imgs, (list, tuple)):
+
+    # Handle the case where imgs is a list of tuples (from gr.Gallery)
+    if isinstance(imgs, list) and all(isinstance(item, tuple) for item in imgs):
+        imgs = [item[0] for item in imgs]  # Extract file paths from tuples
+    elif not isinstance(imgs, (list, tuple)):
         print(f"Error: imgs is not a list or tuple, got {type(imgs)}: {imgs}")
         return "🌸 Error: Invalid upload format. Please upload image files 🌸, not folders! 📸", None
 
@@ -44,11 +48,9 @@ def upload_images(imgs, label, user_folder):
     print(f"Debug: Initial image count in {label_dir}: {img_count}")
     valid_imgs = []
 
-    for i, img in enumerate(imgs):
-        print(f"Debug: Processing image {i}: {img}")
+    for i, img_path in enumerate(imgs):
+        print(f"Debug: Processing image {i}: {img_path}")
         try:
-            img_path = img.name if hasattr(img, 'name') else str(img)
-            print(f"Debug: Image path: {img_path}")
             if not os.path.exists(img_path):
                 print(f"Error: Image file does not exist at {img_path}")
                 continue

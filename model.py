@@ -111,7 +111,14 @@ def predict_unlabeled(img, user_folder):
     top_3_idx = np.argsort(predictions)[-3:][::-1]
     top_3_labels = [class_labels[i] for i in top_3_idx]
     top_3_probs = [predictions[i] * 100 for i in top_3_idx]
-    prediction_text = f"🤖 The robot thinks this picture 🌸 is:\n"
-    for label, prob in zip(top_3_labels, top_3_probs):
-        prediction_text += f"• A {label} ({prob:.2f}% sure) 🌺📸\n"
+
+    # Format the output with HTML, capitalizing flower names
+    prediction_text = "<div style='font-family: \"Comic Sans MS\", cursive, sans-serif;'>🤖 The robot thinks this picture 🌸 is:<br>"
+    for i, (label, prob) in enumerate(zip(top_3_labels, top_3_probs)):
+        label = label.upper()  # Capitalize the flower name
+        if i == 0:  # Highest probability (top prediction)
+            prediction_text += f"<div style='font-size: 18px; font-weight: bold; color: #d81b60;'>• A {label} ({prob:.2f}% sure) 🌺📸</div>"
+        else:  # Lower probabilities
+            prediction_text += f"<div style='font-size: 14px; color: #555;'>• A {label} ({prob:.2f}% ) 🌺📸</div>"
+    prediction_text += "</div>"
     return prediction_text
